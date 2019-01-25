@@ -63,6 +63,10 @@ class Cell(T) : ListeningCell {
 	void opAssign(T v) {
 		this.value = v;
 	}
+	/// ditto
+	bool opEquals(T v) {
+		return value == v;
+	}
 	
 	//---Subtypes
 static:
@@ -126,6 +130,8 @@ unittest {
 	assert(!a.heldNeedsUpdate);
 	assert(!b.heldNeedsUpdate);
 	assert(a.value==1);
+	assert(a==1);
+	assert(b==2);
 	assert(b.value==2);
 	
 	a = 3;
