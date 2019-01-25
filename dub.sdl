@@ -1,0 +1,5 @@
+name "frp-d"
+description "Functional Reactive Programming (FRP) library."
+authors "Jonathan Levi"
+copyright "Copyright © 2019, Jonathan Levi"
+license "BSL-1.0"

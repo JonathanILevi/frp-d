@@ -1,0 +1,15 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/frp-d
+frp-d.so
+frp-d.dylib
+frp-d.dll
+frp-d.a
+frp-d.lib
+frp-d-test-*
+*.exe
+*.o
+*.obj
+*.lst
