@@ -1,6 +1,6 @@
-# FRP-D: Functional Reactive Programming Library for D
+#FRP-D: Functional Reactive Programming Library for D
 
-This library is build from the ground up in order to take full advantage of some of Ds unique features.
+This library is built from the ground up in order to take full advantage of some of Ds unique features.
 
 #Basic Usage
 	void main() {
@@ -19,7 +19,7 @@ This library is build from the ground up in order to take full advantage of some
 		writeln("but `currentProduct` never changed: ",currentProduct);
 	}
 
-# Current State and Further
+#Current State and Further
 
 Currently FRP-D only has a `Cell` type.
 
@@ -32,7 +32,7 @@ This library is being developed to cover the full extent of FRP.
 
 I intend to always have a simple sub-module that just contains this core functionality.  Simple cells can have many use cases in code without having to bundle a full FRP library and the simple cell implementation can be a great way to see how this library works internally without wading through a lot of code.
 
-# Contributing
+#Contributing
 
 Please, if you have an interest is seeing a good FRP library native in D, join in the fun!  I love colaborating!
 
