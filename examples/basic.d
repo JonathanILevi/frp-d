@@ -3,7 +3,7 @@ dependency "frp-d" path=".."
 +/
 
 import std.stdio;
-import frpd;
+import frpd.implicit;
 
 void main() {
 	auto a = cell!int(1);

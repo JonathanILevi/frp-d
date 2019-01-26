@@ -56,19 +56,8 @@ class Cell(T) : ListeningCell {
 			listeners.each!(l=>l.onUpdateReady());
 		}
 	}
-	/**	Implicit casting
-	*/
-	alias value this; // Implicit cast for the get.
-	/// ditto
-	void opAssign(T v) {
-		this.value = v;
-	}
-	/// ditto
-	bool opEquals(T v) {
-		return value == v;
-	}
 	
-	//---Subtypes
+	//---Inner Types
 static:
 	/**	The Func is basically a complex function that knows what other cells this cell depends on
 		and contains the function to recalculate the value.
@@ -130,11 +119,9 @@ unittest {
 	assert(!a.heldNeedsUpdate);
 	assert(!b.heldNeedsUpdate);
 	assert(a.value==1);
-	assert(a==1);
-	assert(b==2);
 	assert(b.value==2);
 	
-	a = 3;
+	a.value = 3;
 	
 	assert(!a.heldNeedsUpdate);
 	assert(!b.heldNeedsUpdate);
@@ -143,7 +130,7 @@ unittest {
 	
 	a.listeners~=b;
 	
-	a = 4;
+	a.value = 4;
 	
 	assert(!a.heldNeedsUpdate);
 	assert(b.heldNeedsUpdate);

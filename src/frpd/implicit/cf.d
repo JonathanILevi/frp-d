@@ -1,44 +1,27 @@
-module frpd.cf;
+module frpd.implicit.cf;
 
-import frpd.cell;
-import std.typecons:tuple;
+import frpd.implicit.cell : implicit;
+import frpd.cf : explicitCf = cf;
+import frpd.cell : ExplicitCell = Cell ;
 
 /**	Create a "cell function" from a normal function.
 	A cell function is a function that rather than taking values
 	takes cells as arguments and will return a cell (changing value) of said calculation.
 */
-template cf(alias f) {// TODO: better error reporting is f is not of the right type.
-	import std.traits : Parameters, ReturnType;
+template cf(alias f) {
+	import std.traits : Parameters;
 	import std.meta : staticMap;
 	alias F = typeof(f);
 	alias Params = Parameters!F;
-	alias CellParams = staticMap!(Cell,Params);
-	alias ThisCell = Cell!(ReturnType!F);
-	
+	alias CellParams = staticMap!(ExplicitCell,Params);
 	auto cf (CellParams cellArgs) {
-		ThisCell thisCell;
-		{
-			auto func = new ThisCell.FuncMaker!Params(
-				tuple(cellArgs),
-				(Params args){
-					return f(args);
-				}
-			);
-			thisCell = new ThisCell(func.call);
-			thisCell.func = func;
-		}
-		{
-			foreach (cellArg; cellArgs) {
-				cellArg.listeners~=thisCell;
-			}
-		}
-		return thisCell;
+		return explicitCf!f(cellArgs).implicit;
 	};
 }
 
 
 unittest {
-	import frpd.cell : cell;
+	import frpd.implicit.cell : cell;
 	int mul(int l, int r) {
 		return l*r;
 	}
@@ -74,5 +57,19 @@ unittest {
 	assert(e.value=="363636");
 	a.value = 1;
 	assert(e.value=="333");
+}
+
+unittest {
+	import frpd.cell : explicitCell = cell;
+	import frpd.implicit.cell : Cell;
+	int mul(int l, int r) {
+		return l*r;
+	}
+	
+	auto a = explicitCell(5);
+	auto b = explicitCell(2);
+	auto c = cf!mul(a,b);
+	
+	assert(is(typeof(c)==Cell!int) && !is(typeof(c)==ExplicitCell!int));
 }
 
