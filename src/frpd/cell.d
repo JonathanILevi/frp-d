@@ -24,6 +24,22 @@ class Cell(T) : ListeningCell {
 		heldNeedsUpdate = true;
 		listeners.each!(l=>l.onUpdateReady());
 	}
+	/*	Pull: update the held value if needed.
+	*/
+	void pull() {
+		if (heldNeedsUpdate) {
+			assert(!(func is null), "The impossible happened, please submit a bug report.");
+			heldValue = func.call;
+			heldNeedsUpdate = false;
+		}
+	}
+	/*	Push: have all listening cells update there value and push themself.
+		(update eagerly)
+	*/
+	void push() {
+		pull;
+		listeners.each!(l=>l.push);
+	}
 	
 	/**	The constructor.
 		v is the starting value of the cell.
@@ -39,11 +55,7 @@ class Cell(T) : ListeningCell {
 		/**	Get the value, updating it if needed (pulling).
 		*/
 		T value() {
-			if (heldNeedsUpdate) {
-				assert(!(func is null), "The impossible happened, please submit a bug report.");
-				heldValue = func.call;
-				heldNeedsUpdate = false;
-			}
+			pull;
 			return heldValue;
 		}
 		/**	Set the value, informing listeners of the change.
@@ -102,6 +114,7 @@ static:
 package(frpd)
 interface ListeningCell {
 	void onUpdateReady();
+	void push();
 }
 
 /**	Simple syntax sugar for creating a cell.
@@ -113,33 +126,57 @@ Cell!T cell(T)(T v) {
 
 
 unittest {
-	Cell!int a = cell!int(1);
-	auto b = cell(2);
-	
-	assert(!a.heldNeedsUpdate);
-	assert(!b.heldNeedsUpdate);
-	assert(a.value==1);
-	assert(b.value==2);
-	
-	a.value = 3;
-	
-	assert(!a.heldNeedsUpdate);
-	assert(!b.heldNeedsUpdate);
-	assert(a.value==3);
-	assert(b.value==2);
-	
-	a.listeners~=b;
-	
-	a.value = 4;
-	
-	assert(!a.heldNeedsUpdate);
-	assert(b.heldNeedsUpdate);
-	assert(a.value==4);
-	try {
-		b.value;
-		assert(0);
+	{
+		Cell!int a = cell!int(1);
+		auto b = cell(2);
+		
+		assert(!a.heldNeedsUpdate);
+		assert(!b.heldNeedsUpdate);
+		assert(a.value==1);
+		assert(b.value==2);
+		
+		a.value = 3;
+		
+		assert(!a.heldNeedsUpdate);
+		assert(!b.heldNeedsUpdate);
+		assert(a.value==3);
+		assert(b.value==2);
+		
+		a.listeners~=b;
+		
+		a.value = 4;
+		
+		assert(!a.heldNeedsUpdate);
+		assert(b.heldNeedsUpdate);
+		assert(a.value==4);
+		try {
+			b.value;
+			assert(0);
+		}
+		catch(Throwable) {}
 	}
-	catch(Throwable) {}
+	//---test push
+	{
+		class B : ListeningCell {
+			bool updateReady = false;
+			void onUpdateReady() {
+				updateReady = true;
+			}
+			void push() {
+				updateReady = false;
+			}
+		}
+		
+		auto a = cell(1);
+		B b = new B;
+		a.listeners~=b;
+		
+		a.value = 4;
+		assert(!a.heldNeedsUpdate);
+		assert(b.updateReady);
+		a.push;
+		assert(!b.updateReady);
+	}
 }
 
 
