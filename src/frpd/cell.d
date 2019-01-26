@@ -8,14 +8,14 @@ import std.typecons:Tuple;
 	Often called a "behavior" in other FRP implementations,
 	the name Cell was borrowed from Sodium (github.com/SodiumFRP/sodium).
 */
-class Cell(T) : ListeningCell {
+class Cell(T) : CellListener {
 	//---Values
 	T heldValue;	// The current value of the cell. (may need updated)
 	bool heldNeedsUpdate;	// Whether the `heldValue` is up to date.
 	
 	Func func;	// This function to call to update the held value.
 		// use `func.call` it will return the new value (of type `T`).
-	ListeningCell[] listeners;	// The Cells (and later steams) that need to know when I change.
+	CellListener[] listeners;	// The Cells (and later steams) that need to know when I change.
 	
 	//---Methods
 	/**	Called when a value this cell cares about is changed.
@@ -112,7 +112,7 @@ static:
 /**	Any type of cell must be able to be told when it needs to recalculate its value.
 */
 package(frpd)
-interface ListeningCell {
+interface CellListener {
 	void onUpdateReady();
 	void push();
 }
@@ -157,7 +157,7 @@ unittest {
 	}
 	//---test push
 	{
-		class B : ListeningCell {
+		class B : CellListener {
 			bool updateReady = false;
 			void onUpdateReady() {
 				updateReady = true;

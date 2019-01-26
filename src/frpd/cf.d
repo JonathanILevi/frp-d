@@ -1,6 +1,7 @@
 module frpd.cf;
 
 import frpd.cell;
+import frpd.add_listener : addListener;
 import std.typecons:tuple;
 
 /**	Create a "cell function" from a normal function.
@@ -29,7 +30,7 @@ template cf(alias f) {// TODO: better error reporting is f is not of the right t
 		}
 		{
 			foreach (cellArg; cellArgs) {
-				cellArg.listeners~=thisCell;
+				cellArg.addListener(thisCell);
 			}
 		}
 		return thisCell;
