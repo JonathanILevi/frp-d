@@ -4,7 +4,7 @@ import std.algorithm;
 import frpd.cell : Cell, CellListener;
 
 /**
-	Add a cellListener to a cell.
+	Add a CellListener to a cell.
 	To get informed of changes.
 */
 void addListener(T)(Cell!T cell, CellListener listener) {
@@ -15,44 +15,51 @@ void listenTo(T)(CellListener listener, Cell!T cell) {
 	addListener(cell, listener);
 }
 /**
-	Remove a cellListener from a cell.
+	Remove a CellListener from a cell.
 */
 void removeListener(T)(Cell!T cell, CellListener listener) {
-	cell.listeners.remove(cell.listeners.countUntil(listener));
+	cell.listeners = cell.listeners.remove(cell.listeners.countUntil(listener));
 }
 /// ditto
-void stopListeningTo(T)(CellListener listener, Cell!T cell) {
+void unlistenTo(T)(CellListener listener, Cell!T cell) {
 	removeListener(cell, listener);
 }
 
 
 unittest {
-	import frpd.implicit.cell : cell;
-	{
-		auto a = cell(1);
-		auto b = cell(2);
-		a.addListener(b);
-		a.value = 3;
-		assert(!a.heldNeedsUpdate);
-		assert(b.heldNeedsUpdate);
-		b.heldNeedsUpdate = false;
-		a.removeListener(b);
-		a.value = 4;
-		assert(!a.heldNeedsUpdate);
-		assert(b.heldNeedsUpdate);
+	import frpd.settable_cell : cell;
+	class B : CellListener {
+		bool valueReady = false;
+		void onValueReady() {
+			valueReady = true;
+		}
+		void push() {
+			valueReady = false;
+		}
 	}
 	{
 		auto a = cell(1);
-		auto b = cell(2);
-		b.listenTo(a);
+		auto b = new B;
+		assert(!b.valueReady);
+		a.addListener(b);
+		a.value = 2;
+		assert(b.valueReady);
+		b.valueReady = false;
+		a.removeListener(b);
 		a.value = 3;
-		assert(!a.heldNeedsUpdate);
-		assert(b.heldNeedsUpdate);
-		b.heldNeedsUpdate = false;
-		b.stopListeningTo(a);
-		a.value = 4;
-		assert(!a.heldNeedsUpdate);
-		assert(b.heldNeedsUpdate);
+		assert(!b.valueReady);
+	}
+	{
+		auto a = cell(1);
+		auto b = new B;
+		assert(!b.valueReady);
+		b.listenTo(a);
+		a.value = 2;
+		assert(b.valueReady);
+		b.valueReady = false;
+		b.unlistenTo(a);
+		a.value = 3;
+		assert(!b.valueReady);
 	}
 }
 

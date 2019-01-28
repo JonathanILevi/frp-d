@@ -1,7 +1,7 @@
 module frpd;
 
-public import frpd.cell : Cell, cell;
-public import frpd.cf : cf;
-public import frpd.unit : Unit, unit;
+public import frpd.cell;
+public import frpd.cf;
+public import frpd.unit;
 public import frpd.add_listener;
 

@@ -3,20 +3,23 @@ dependency "frp-d" path=".."
 +/
 
 import std.stdio;
-import frpd.implicit;
+import frpd;
+import frpd.settable_cell;
 
 void main() {
 	auto a = cell!int(1);
 	auto b = cell(2);
 	
 	auto product = cf!mul(a,b);
-	auto currentProduct = mul(a,b);
+	auto currentProduct = mul(a.value,b.value);
+	writeln("`product` is a: `Cell!int`");
+	writeln("`currentProduct` is a: `int`");
 	
-	writeln(a," * ",b," = ",product);
-	a = 2;
-	writeln(a," * ",b," = ",product);
-	b = 3;
-	writeln(a," * ",b," = ",product);
+	writeln(a.value," * ",b.value," = ",product.value);
+	a.value = 2;
+	writeln(a.value," * ",b.value," = ",product.value);
+	b.value = 3;
+	writeln(a.value," * ",b.value," = ",product.value);
 	
 	writeln("but `currentProduct` never changed: ",currentProduct);
 }

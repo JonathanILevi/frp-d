@@ -1,183 +1,52 @@
 module frpd.cell;
 
 import std.algorithm;
-import std.typecons:Tuple;
 
 /**	A cell is the most basic type in FRP.
 	A cell is a changing value (named after the cell in a spreadsheet).
 	Often called a "behavior" in other FRP implementations,
-	the name Cell was borrowed from Sodium (github.com/SodiumFRP/sodium).
+	the name "cell" was borrowed from Sodium (github.com/SodiumFRP/sodium).
+	
+	This is the face of a cell.
+	For managing access to the value contained within.
+	For getting the value or pushing or pulling calculation of the value.
+	Not how the value is actually calculated.
+	
+	The settable cell is a cell where the value is set/managed in non-frp code.
+	A cell func (created with `cf`) creates a type of cell who's
+	value comes from a calculation with other cells.
 */
-class Cell(T) : CellListener {
-	//---Values
-	T heldValue;	// The current value of the cell. (may need updated)
-	bool heldNeedsUpdate;	// Whether the `heldValue` is up to date.
-	
-	Func func;	// This function to call to update the held value.
-		// use `func.call` it will return the new value (of type `T`).
-	CellListener[] listeners;	// The Cells (and later steams) that need to know when I change.
-	
-	//---Methods
-	/**	Called when a value this cell cares about is changed.
-	*/
-	void onUpdateReady() {
-		heldNeedsUpdate = true;
-		listeners.each!(l=>l.onUpdateReady());
-	}
-	/*	Pull: update the held value if needed.
-	*/
+abstract class Cell(T) {
+	//---values
+	CellListener[] listeners; // Listeners who needs to know of changes.
+	//---methods
+	/// Get the value currently within this cell (calculating it if needing) (lazy by default).
+	abstract @property T value();
+	/// Force this value to be calulated now.  (and consequently those that this cell depends on)
 	void pull() {
-		if (heldNeedsUpdate) {
-			assert(!(func is null), "The impossible happened, please submit a bug report.");
-			heldValue = func.call;
-			heldNeedsUpdate = false;
-		}
+		value;
 	}
-	/*	Push: have all listening cells update there value and push themself.
-		(update eagerly)
-	*/
+	/// Force calculation related to this cell to happen now.  (update this cell's value, those this cell depends on, and those that depend on this cell)
 	void push() {
 		pull;
-		listeners.each!(l=>l.push);
+		listeners.each!(l=>l.push); // Pass on to listeners.
 	}
-	
-	/**	The constructor.
-		v is the starting value of the cell.
-	*/
-	this(T v) {
-		heldValue	= v	;
-		heldNeedsUpdate	= false	;
-	}
-	/**	The smart property methods to get and set `value`.
-		These are lazy by default.  The tree will not be updated until a value is needed.
-	*/
-	@property {
-		/**	Get the value, updating it if needed (pulling).
-		*/
-		T value() {
-			pull;
-			return heldValue;
-		}
-		/**	Set the value, informing listeners of the change.
-			(This is not called pushing, pushing (yet to be implemented) is when the listeners are forcible updated.)
-		*/
-		void value(T v) {
-			assert(func is null, "You cannot set the value of a cell that is defined by a function.");
-			heldValue = v;
-			heldNeedsUpdate = false;
-			listeners.each!(l=>l.onUpdateReady());
-		}
-	}
-	
-	//---Inner Types
-static:
-	/**	The Func is basically a complex function that knows what other cells this cell depends on
-		and contains the function to recalculate the value.
-		Use func.call to calculate the value.
-	*/
-	class Func {
-		abstract T call();
-	}
-	///	Template magic! Used internally to create the Func.
-	class FuncMaker(Ins...) : Func {
-		import std.meta : staticMap;
-		private alias CellIns = staticMap!(Cell,Ins);
-		
-		//---Values
-		Tuple!CellIns ins;	// The Cells from which to extract values from when recalculating.
-		T delegate(Ins) func;	// The function to call with the extracted values.
-		
-		//---Constructor
-		this(	Tuple!CellIns ins,
-			T delegate(Ins) func,
-		){
-			this.ins = ins;
-			this.func = func;
-		}
-		
-		//---Method
-		/**	Call this "function" to calculate the value.
-			I might make opCall an alias for this?
-		*/
-		override T call() {
-			Tuple!(Ins) args;
-			foreach(i,in_; ins) {
-				args[i] = in_.value;
-			}
-			return func(args.expand);
-		}
+	/// Pass on down the line that the currently calculated value is no longer valid.
+	void onValueReady() {
+		listeners.each!(l=>l.onValueReady); // Pass on to listeners.
 	}
 }
-
-/**	Any type of cell must be able to be told when it needs to recalculate its value.
+/**	For any object that wants to listen to the changes of a cell.
 */
-package(frpd)
 interface CellListener {
-	void onUpdateReady();
+	/// Pass on down the line that the currently calculated value is no longer valid.
+	void onValueReady();
+	/// Request calculation of value to be done now (eagerly).
 	void push();
 }
 
-/**	Simple syntax sugar for creating a cell.
-*/
-Cell!T cell(T)(T v) {
-	return new Cell!T(v);
-}
 
 
-
-unittest {
-	{
-		Cell!int a = cell!int(1);
-		auto b = cell(2);
-		
-		assert(!a.heldNeedsUpdate);
-		assert(!b.heldNeedsUpdate);
-		assert(a.value==1);
-		assert(b.value==2);
-		
-		a.value = 3;
-		
-		assert(!a.heldNeedsUpdate);
-		assert(!b.heldNeedsUpdate);
-		assert(a.value==3);
-		assert(b.value==2);
-		
-		a.listeners~=b;
-		
-		a.value = 4;
-		
-		assert(!a.heldNeedsUpdate);
-		assert(b.heldNeedsUpdate);
-		assert(a.value==4);
-		try {
-			b.value;
-			assert(0);
-		}
-		catch(Throwable) {}
-	}
-	//---test push
-	{
-		class B : CellListener {
-			bool updateReady = false;
-			void onUpdateReady() {
-				updateReady = true;
-			}
-			void push() {
-				updateReady = false;
-			}
-		}
-		
-		auto a = cell(1);
-		B b = new B;
-		a.listeners~=b;
-		
-		a.value = 4;
-		assert(!a.heldNeedsUpdate);
-		assert(b.updateReady);
-		a.push;
-		assert(!b.updateReady);
-	}
-}
 
 
 
