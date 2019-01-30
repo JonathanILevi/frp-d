@@ -18,7 +18,7 @@ import std.algorithm;
 */
 abstract class Cell(T) {
 	//---values
-	CellListener[] listeners; // Listeners who needs to know of changes.
+	CellListener[] listeners = []; // Listeners who needs to know of changes.
 	//---methods
 	/// Get the value currently within this cell (calculating it if needing) (lazy by default).
 	abstract @property T value();

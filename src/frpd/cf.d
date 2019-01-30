@@ -62,7 +62,6 @@ template cf(alias f) {// TODO: better error reporting is f is not of the right t
 			
 			//---Listener methods
 			override void onValueReady() {
-				import std.stdio;
 				heldNeedsUpdate = true;
 				super.onValueReady;
 			}
