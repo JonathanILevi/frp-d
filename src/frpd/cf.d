@@ -20,28 +20,27 @@ template cf(alias f) {// TODO: better error reporting is f is not of the right t
 		alias Params = Parameters!F;
 		alias CellParams = staticMap!(Cell,Params);
 		
-		class FuncCell(Ins...) : Cell!T, CellListener {
+		class FuncCell : Cell!T, CellListener {
 			import std.meta : staticMap;
-			private alias CellIns = staticMap!(Cell,Ins);
 			
 			//---Values
 			T heldValue;
 			bool heldNeedsUpdate;
-			Tuple!CellIns ins;	// The Cells from which to extract values from when recalculating.
-			T delegate(Ins) func;	// The function to call with the extracted values.
+			Tuple!CellParams cellArgs;	// The Cells from which to extract values from when recalculating.
+			T delegate(Params) func;	// The function to call with the extracted values.
 			
 			//---Constructor
-			this(	Tuple!CellIns ins,
-				T delegate(Ins) func,
+			this(	Tuple!CellParams cellArgs,
+				T delegate(Params) func,
 			){
 				heldNeedsUpdate = true;
-				this.ins = ins;
+				this.cellArgs = cellArgs;
 				this.func = func;
 				
-				ins.each!(i=>i.addListener(this));
+				cellArgs.each!(i=>i.addListener(this));
 			}
 			~this() {
-				ins.each!(i=>i.removeListener(this));
+				cellArgs.each!(i=>i.removeListener(this));
 			}
 			
 			//---Methods
@@ -50,9 +49,9 @@ template cf(alias f) {// TODO: better error reporting is f is not of the right t
 			*/
 			override @property T value() {
 				if (heldNeedsUpdate) {
-					Tuple!(Ins) args;
-					foreach(i,in_; ins) {
-						args[i] = in_.value;
+					Tuple!(Params) args;
+					foreach(i,cellArg; cellArgs) {
+						args[i] = cellArg.value;
 					}
 					heldValue = func(args.expand);
 					heldNeedsUpdate = false;
@@ -73,7 +72,7 @@ template cf(alias f) {// TODO: better error reporting is f is not of the right t
 	}
 	
 	Cell!T cf (CellParams cellArgs) {
-		return new FuncCell!Params(cellArgs.tuple, (Params args){return f(args);});
+		return new FuncCell(cellArgs.tuple, (Params args){return f(args);});
 	};
 }
 
