@@ -2,7 +2,7 @@ module frpd.cf;
 
 import std.algorithm;
 import frpd.cell;
-import frpd.add_listener : addListener,removeListener;
+import frpd._add_listener : addListener,removeListener;
 import std.typecons:tuple,Tuple;
 
 /**	Create a "cell function" from a normal function.

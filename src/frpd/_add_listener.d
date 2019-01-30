@@ -1,4 +1,4 @@
-module frpd.add_listener;
+module frpd._add_listener;
 
 import std.algorithm;
 import frpd.cell : Cell, CellListener;
