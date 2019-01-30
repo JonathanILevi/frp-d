@@ -3,3 +3,18 @@ description "Functional Reactive Programming (FRP) library."
 authors "Jonathan Levi"
 copyright "Copyright © 2019, Jonathan Levi"
 license "BSL-1.0"
+
+targetType "none"
+
+subPackage {
+	name "cell"
+	targetType "library"
+	sourcePaths	"src_cell"
+	importPaths	"src_cell"
+}
+////subPackage {
+////	name "stream"
+////	targetType "library"
+////	sourcePaths	"src_stream"
+////	importPaths	"src_stream"
+////}
