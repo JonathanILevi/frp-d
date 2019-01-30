@@ -1,10 +1,10 @@
 /+dub.sdl:
-dependency "frp-d" path=".."
+dependency "frp-d:cell" path=".."
 +/
 
 import std.stdio;
-import frpd;
-import frpd.settable_cell;
+import frpd.cell;
+import frpd.cell.settable_cell;
 
 void main() {
 	auto a = cell!int(1);
