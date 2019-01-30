@@ -9,12 +9,12 @@ targetType "none"
 subPackage {
 	name "cell"
 	targetType "library"
-	sourcePaths	"src_cell"
-	importPaths	"src_cell"
+	sourcePaths	"src" "src_cell"
+	importPaths	"src" "src_cell"
 }
 ////subPackage {
 ////	name "stream"
 ////	targetType "library"
-////	sourcePaths	"src_stream"
-////	importPaths	"src_stream"
+////	sourcePaths	"src" "src_stream"
+////	importPaths	"src" "src_stream"
 ////}
