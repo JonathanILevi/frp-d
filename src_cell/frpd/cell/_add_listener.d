@@ -1,7 +1,7 @@
-module frpd._add_listener;
+module frpd.cell._add_listener;
 
 import std.algorithm;
-import frpd.cell : Cell, CellListener;
+import frpd.cell.cell : Cell, CellListener;
 
 /**
 	Add a CellListener to a cell.
@@ -27,7 +27,7 @@ void unlistenTo(T)(CellListener listener, Cell!T cell) {
 
 
 unittest {
-	import frpd.settable_cell : cell;
+	import frpd.cell.settable_cell : cell;
 	class B : CellListener {
 		bool valueReady = false;
 		void onValueReady() {

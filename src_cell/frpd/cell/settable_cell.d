@@ -1,27 +1,30 @@
-module frpd.settable_cell;
+module frpd.cell.settable_cell;
 
 import std.algorithm;
-import frpd.cell : Cell, CellListener;
+import frpd.cell.cell : Cell, CellListener;
 
 /**	A cell managed/set in non-frp code.
 	The most basic entry point of data into the frp tree.
 	Simply use the `value` property to set (`settableCell.value = newValue`).
 */
 class SettableCell(T) : Cell!T {
-	private T currentValue;
-	
-	///	Create with a starting value.
-	this(T v) {
-		currentValue = v;
+	public {
+		/// Create with a starting value.
+		this(T v) {
+			currentValue = v;
+		}
+		/// Set current value
+		@property void value(T v) {
+			currentValue = v;
+			onValueReady;
+		}
+		/// Get current value.
+		override @property T value() {
+			return currentValue;
+		}
 	}
-	/// Get current value.
-	override @property T value() {
-		return currentValue;
-	}
-	/// Set current value
-	@property void value(T v) {
-		currentValue = v;
-		onValueReady;
+	private {
+		T currentValue;
 	}
 }
 /**	Create a settable cell.

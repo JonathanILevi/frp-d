@@ -1,4 +1,4 @@
-module frpd.cell;
+module frpd.cell.cell;
 
 import std.algorithm;
 

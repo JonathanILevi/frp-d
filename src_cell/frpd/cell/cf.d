@@ -1,8 +1,8 @@
-module frpd.cf;
+module frpd.cell.cf;
 
 import std.algorithm;
-import frpd.cell;
-import frpd._add_listener : addListener,removeListener;
+import frpd.cell.cell;
+import frpd.cell._add_listener : addListener,removeListener;
 import std.typecons:tuple,Tuple;
 
 /**	Create a "cell function" from a normal function.
@@ -70,15 +70,14 @@ template cf(alias f) {// TODO: better error reporting is f is not of the right t
 			
 		}
 	}
-	
-	Cell!T cf (CellParams cellArgs) {
+	Cell!T cf(CellParams cellArgs) {
 		return new FuncCell(cellArgs.tuple, (Params args){return f(args);});
 	};
 }
 
 
 unittest {
-	import frpd.settable_cell : cell;
+	import frpd.cell.settable_cell : cell;
 	int mul(int l, int r) {
 		return l*r;
 	}
