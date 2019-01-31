@@ -4,6 +4,8 @@ import std.algorithm;
 import frpd.cell.cell;
 import frpd.cell._add_listener : addListener,removeListener;
 import std.typecons:tuple,Tuple;
+import std.traits : Parameters, ReturnType;
+import std.meta : staticMap;
 
 /**	Create a "cell function" from a normal function.
 	A cell function is a function that rather than taking values
@@ -13,8 +15,6 @@ import std.typecons:tuple,Tuple;
 */
 template cf(alias f) {// TODO: better error reporting is f is not of the right type.
 	private {
-		import std.traits : Parameters, ReturnType;
-		import std.meta : staticMap;
 		alias F = typeof(f);
 		alias T = ReturnType!F;
 		alias Params = Parameters!F;
