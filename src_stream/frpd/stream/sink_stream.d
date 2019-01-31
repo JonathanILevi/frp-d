@@ -17,6 +17,9 @@ class SinkStream(T) : Stream!T {
 		super.onEventsComming();
 		super.push(es);
 	}
+	void bufferPut(T e) {
+		bufferPut([e]);
+	}
 	void bufferPut(T[] es) {
 		assert(!bufferComming, "Event buffer already given, call push to push current events first.");
 		buffer = es;
