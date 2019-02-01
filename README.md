@@ -1,41 +1,55 @@
-#FRP-D: Functional Reactive Programming Library for D
+# FRP-D: Functional Reactive Programming Library for D
 
 This library is built from the ground up in order to take full advantage of some of Ds unique features.
 
-#Basic Usage
+# Basic Usage
+
+## Cell Usage
+
 	void main() {
 		auto a = cell!int(1);
 		auto b = cell(2);
 		
 		auto product = cf!mul(a,b);
-		auto currentProduct = mul(a,b);
+		auto currentProduct = mul(a.value,b.value);
+		writeln("`product` is a: `Cell!int`");
+		writeln("`currentProduct` is a: `int`");
 		
-		writeln(a," * ",b," = ",product);
-		a = 2;
-		writeln(a," * ",b," = ",product);
-		b = 3;
-		writeln(a," * ",b," = ",product);
+		writeln(a.value," * ",b.value," = ",product.value);
+		a.value = 2;
+		writeln(a.value," * ",b.value," = ",product.value);
+		b.value = 3;
+		writeln(a.value," * ",b.value," = ",product.value);
 		
 		writeln("but `currentProduct` never changed: ",currentProduct);
 	}
 
-#Current State and Further
+## Stream Usage
 
-Currently FRP-D only has a `Cell` type.
+	void main() {
+		auto a = stream!int;
+		auto b = stream!int;
+		
+		auto a3 = a.map!triple;
+		auto a3b = join!((int[] l, int[] r)=>l~r)(a3,b);
+		
+		a3.addListener!((int v){writeln("Event in `a3`: ",v);});
+		a3b.addListener!((int v){writeln("Event in `a3b`: ",v);});
+		
+		writeln("Order of listeners being called from events from the same source is undefined. (More technically, events in the same transaction.");
+		a.put(1);
+		writeln("--- Transation break.");
+		b.put(2);
+		writeln("--- Transation break.");
+		a.put(5);
+		writeln("--- Transation break.");
+		a.put(6);
+	}
 
-Often called a "behavior" in other FRP implementations,
-the name "cell" was borrowed from Sodium (github.com/SodiumFRP/sodium).
+# Contributing
 
-The `Cell` is the most basic type in FRP and you can do a lot with just it.
+If you have an interest is seeing a good FRP library native in D, join in the fun!  I love colaborating!
 
-This library is being developed to cover the full extent of FRP.
-
-I intend to always have a simple sub-module that just contains this core functionality.  Simple cells can have many use cases in code without having to bundle a full FRP library and the simple cell implementation can be a great way to see how this library works internally without wading through a lot of code.
-
-#Contributing
-
-Please, if you have an interest is seeing a good FRP library native in D, join in the fun!  I love colaborating!
-
-I have only just started this project so if you have questions just ask.
+If you have questions just ask.
 
 I also currently have Trello board for todo: https://trello.com/b/STcPZpQ9/frp-d
