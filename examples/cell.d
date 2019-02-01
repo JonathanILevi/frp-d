@@ -2,6 +2,8 @@
 dependency "frp-d:cell" path=".."
 +/
 
+module cell_; // Renamed because `cell` conflicts with function name.
+
 import std.stdio;
 import frpd.cell;
 import frpd.cell.settable_cell;
