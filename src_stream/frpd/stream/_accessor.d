@@ -4,9 +4,11 @@ import std.algorithm;
 import frpd.stream.stream : Stream, StreamListener;
 import frpd.stream._add_listener;
 
+/**	Helper for when a node needs to take multiple streams.
+	Without this events from different streams are indistinguishable.
+*/
 class Accessor(T) : StreamListener!T {
 	bool eventsComming = false;
-////	bool eventsReady = false;
 	T[] events = [];
 	Stream!T source;
 	AccessorOwner owner;
@@ -22,27 +24,24 @@ class Accessor(T) : StreamListener!T {
 	
 	void onEventsComming() {
 		assert(!eventsComming,"The impossible happened, please submit a bug report.");
-////		assert(!eventsReady,"The impossible happened, please submit a bug report.");
 		eventsComming = true;
 		owner.onEventsComming;
 	}
 	void push(T[] e) {
 		assert(eventsComming,"The impossible happened, please submit a bug report.");
-////		assert(!eventsReady,"The impossible happened, please submit a bug report.");
 		eventsComming = false;
-////		eventsReady = true;
 		events = e;
 		owner.push;
 	}
 	T[] takeEvents() {
 		assert(!eventsComming,"You tried to take events when they are still comming.  Please check `eventsComming` before calling.");
-////		assert(eventsReady,"No events ready, please check `eventsReady` before taking events.");
 		auto toReturn = events;
 		events = [];
-////		eventsReady = false;
 		return toReturn;
 	}
 }
+/**	For the node which is using accessors.
+*/
 interface AccessorOwner {
 	void onEventsComming();
 	void push();

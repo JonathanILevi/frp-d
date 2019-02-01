@@ -6,6 +6,8 @@ import std.range : array;
 import frpd.stream.stream : Stream, StreamListener;
 import frpd.stream._add_listener;
 
+/**	Stream that takes a stream and modifies each event with given function.
+*/
 template map(alias f) {// TODO: better error reporting is f is not of the right type.
 	private {
 		import std.traits : Parameters, ReturnType;
@@ -19,8 +21,8 @@ template map(alias f) {// TODO: better error reporting is f is not of the right 
 		class MapStream : Stream!T, StreamListener!Param {
 			//---Values
 			size_t eventsComming;
-			StreamParam streamArg;	// The Cells from which to extract values from when recalculating.
-			T delegate(Param) func;	// The function to call with the extracted values.
+			StreamParam streamArg;	// The Stream from which to get events.
+			T delegate(Param) func;	// The function to call with events.
 			
 			//---Constructor
 			this(	StreamParam streamArg,

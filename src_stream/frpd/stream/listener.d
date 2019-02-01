@@ -4,6 +4,9 @@ import std.algorithm;
 import frpd.stream._add_listener : listenTo;
 import frpd.stream.stream : Stream, StreamListener;
 
+/**	Create a simple function listener for a stream.
+	To be called with all events.
+*/
 template addListener(alias f){
 	private {
 		import std.traits : Parameters;

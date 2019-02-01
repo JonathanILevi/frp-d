@@ -6,6 +6,8 @@ import std.typecons:tuple,Tuple;
 import std.traits : Parameters, ReturnType, ForeachType;
 import std.meta : staticMap;
 
+/**	Join multiple streams into one.
+*/
 template join(alias f) {// TODO: better error reporting is f is not of the right type.
 	private {
 		alias F = typeof(f);

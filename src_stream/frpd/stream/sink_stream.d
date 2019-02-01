@@ -2,7 +2,8 @@ module frpd.stream.sink_stream;
 
 import frpd.stream.stream : Stream;
 
-
+/**	Event stream with put methods for basic code to create events in frp stream.
+*/
 class SinkStream(T) : Stream!T {
 	//---values
 	private T[] buffer = [];
@@ -33,6 +34,8 @@ class SinkStream(T) : Stream!T {
 	}
 }
 
+/**	Syntax sugar to create a new SinkStream.
+*/
 SinkStream!T stream(T)() {
 	return new SinkStream!T;
 }
